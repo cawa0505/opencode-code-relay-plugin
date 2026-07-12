@@ -20,3 +20,6 @@ next_step.md
 # local dev harness (not part of the published plugin)
 .opencode/
 .cortexkit/
+
+# local working notes (never commit / publish)
+PUBLISH.md
