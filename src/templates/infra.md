@@ -24,5 +24,8 @@
 ## Next session starter
 {{next_session_starter}}
 
+## Inherited handoffs
+{{handoffs}}
+
 ---
 _Generated {{last_updated}} · relay v{{schema_version}}_

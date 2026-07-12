@@ -44,6 +44,11 @@ function varsFor(root: string, relay: RelayState, repo: RepoState): Record<strin
     git_stat: gitIsRepo(repoDir) ? gitShortStat(repoDir) : "n/a",
     spec_intent: specIntent(root, repo.name),
     schema_version: relay.schema_version,
+    handoffs: repo.handoffs.length
+      ? repo.handoffs
+          .map((h) => `### From ${h.source} (${h.captured_at})\n${h.raw.trim()}`)
+          .join("\n\n")
+      : "(none)",
   }
 }
 

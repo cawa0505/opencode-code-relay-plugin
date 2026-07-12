@@ -1,5 +1,11 @@
 export type ConfidenceScore = 1 | 2 | 3 | 4 | 5
 
+export interface HandoffEntry {
+  source: string
+  captured_at: string
+  raw: string
+}
+
 export interface RepoState {
   name: string
   path: string
@@ -9,6 +15,7 @@ export interface RepoState {
   confidence_score: ConfidenceScore
   debt_tag: string[]
   next_session_starter: string
+  handoffs: HandoffEntry[]
   last_updated: string
 }
 

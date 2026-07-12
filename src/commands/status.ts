@@ -13,6 +13,7 @@ export function statusRelay(startDir: string): string {
     ...repos.map(
       (r) =>
         `  - ${r.name} [${r.active_phase || "?"}] conf=${r.confidence_score}` +
+        (r.handoffs.length ? ` · ${r.handoffs.length} handoff(s)` : "") +
         (r.next_session_starter ? ` → ${r.next_session_starter.slice(0, 60)}` : ""),
     ),
     `Specs: ${listSpecs(root).join(", ") || "(none)"}`,

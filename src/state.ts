@@ -1,7 +1,7 @@
 import { execSync } from "node:child_process"
 import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, statSync } from "node:fs"
 import { join, resolve, basename, dirname } from "node:path"
-import type { RelayState, RepoState } from "./types.js"
+import type { HandoffEntry, RelayState, RepoState } from "./types.js"
 
 export const RELAY_FILE = "relay.json"
 export const SCHEMA_VERSION = "1.0.0"
@@ -52,10 +52,42 @@ export function updateRepo(root: string, repo: string, patch: Partial<RepoState>
     confidence_score: 3 as const,
     debt_tag: [],
     next_session_starter: "",
+    handoffs: [],
     last_updated: "",
   }
   const next: RepoState = { ...prev, ...patch, name: repo, last_updated: now() }
   relay.repos[repo] = next
+  writeRelay(root, relay)
+  return relay
+}
+
+export function addHandoff(root: string, repo: string, source: string, raw: string): RelayState {
+  const relay = readRelay(root)
+  if (!relay.repos[repo]) {
+    relay.repos[repo] = {
+      name: repo,
+      path: repo,
+      role: "",
+      active_phase: "",
+      volatile_state: "",
+      confidence_score: 3,
+      debt_tag: [],
+      next_session_starter: "",
+      handoffs: [],
+      last_updated: now(),
+    }
+  }
+  const r = relay.repos[repo]
+  const entry: HandoffEntry = { source, captured_at: now(), raw }
+  r.handoffs = [...(r.handoffs ?? []), entry]
+  // ponytail: naive line parse into open_threads, deduped against existing
+  const seen = new Set(relay.state_snapshot.open_threads)
+  for (const line of raw.split("\n").map((l) => l.trim()).filter(Boolean)) {
+    if (!seen.has(line)) {
+      relay.state_snapshot.open_threads.push(line)
+      seen.add(line)
+    }
+  }
   writeRelay(root, relay)
   return relay
 }

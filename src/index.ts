@@ -5,6 +5,7 @@ import { saveRelay } from "./commands/save.js"
 import { closeRelay } from "./commands/close.js"
 import { switchRelay, resumeRelay } from "./commands/switch.js"
 import { statusRelay } from "./commands/status.js"
+import { addHandoffCmd } from "./commands/add.js"
 import { discoverRoot, readRelay } from "./state.js"
 import { renderResume } from "./render.js"
 import { startAutoUpdate } from "./auto-update.js"
@@ -46,6 +47,11 @@ const plugin: Plugin = async (ctx: PluginInput): Promise<Hooks> => {
     "relay-status": {
       description: "Show relay summary (repos, active baton, spec drift)",
       template: "Use the `relayStatus` tool to print the current relay state.",
+    },
+    "relay-add": {
+      description: "Ingest an existing TODO/handoff doc from an old project into relay.json",
+      template:
+        "Use the `relayAdd` tool with the path to the existing doc as `file` (e.g. `./TODO.md`). It stores the raw text and parses each non-empty line into open_threads.",
     },
   }
 
@@ -112,6 +118,15 @@ const plugin: Plugin = async (ctx: PluginInput): Promise<Hooks> => {
         description: "Show relay summary: repos, active baton, spec drift, last update.",
         args: {},
         execute: async () => statusRelay(dir),
+      }),
+      relayAdd: tool({
+        description:
+          "Ingest an existing TODO/handoff doc from an old project into relay.json: stores the raw text and parses each non-empty line into open_threads.",
+        args: {
+          file: z.string(),
+          repo: z.string().optional(),
+        },
+        execute: async (args) => addHandoffCmd(dir, args),
       }),
     },
     "experimental.session.compacting": async (_input, output) => {
