@@ -1,4 +1,4 @@
-import type { Plugin, PluginInput, Hooks } from "@opencode-ai/plugin"
+import type { Plugin, PluginInput, Hooks, Config } from "@opencode-ai/plugin"
 import { tool } from "@opencode-ai/plugin"
 import { initRelay } from "./commands/init.js"
 import { saveRelay } from "./commands/save.js"
@@ -12,7 +12,49 @@ const z = tool.schema
 
 const plugin: Plugin = async (ctx: PluginInput): Promise<Hooks> => {
   const dir = ctx.directory
+  // opencode does NOT auto-discover slash commands from npm plugin packages.
+  // Register them here by mutating cfg.command (same pattern the plugin
+  // ecosystem uses). The .md files in commands/ are kept only as reference.
+  const commands: Record<string, { description: string; template: string }> = {
+    relayInit: {
+      description: "Initialize a relay.json to start cross-session state handoff",
+      template:
+        "Use the `relayInit` tool to create a `relay.json` in the current directory, plus `specs/` and `.code-relay/` folders. If the user described the project, pass it as `project_context`.",
+    },
+    relaySave: {
+      description: "Save current repo state into relay.json and render RESUME.md",
+      template:
+        "Use the `relaySave` tool to capture the current repo's state. Summarize what the user said into `volatile_state`, set `active_phase` if known, and a `confidence` (1-5). If they said what to do next, set `next_session_starter`.",
+    },
+    relayClose: {
+      description: "Run the closing ritual (consistency check, spec diff, next_step.md, commit)",
+      template:
+        "Use the `relayClose` tool to run the closing ritual for the current repo. If the user gave a next-step instruction, pass it as `next_session_starter`.",
+    },
+    relaySwitch: {
+      description: "Pass the baton to another repo and render its handover",
+      template:
+        "Use the `relaySwitch` tool with the target repo name (from `relayStatus`) as `repo`.",
+    },
+    relayResume: {
+      description: "Render the RESUME handover for the active repo (bootstrap a new session)",
+      template:
+        "Use the `relayResume` tool to print the RESUME handover for the active repo. If the user named a repo, pass it as `repo`.",
+    },
+    relayStatus: {
+      description: "Show relay summary (repos, active baton, spec drift)",
+      template: "Use the `relayStatus` tool to print the current relay state.",
+    },
+  }
+
   return {
+    config: async (cfg: Config) => {
+      const c = cfg as Record<string, any>
+      c.command ??= {}
+      for (const [name, def] of Object.entries(commands)) {
+        c.command[name] = def
+      }
+    },
     tool: {
       relayInit: tool({
         description:
