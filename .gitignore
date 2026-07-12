@@ -1,0 +1,22 @@
+# deps / build
+node_modules/
+dist/
+*.tsbuildinfo
+
+# secrets
+.env
+.env.*
+*.local
+
+# logs
+*.log
+
+# relay runtime state (NEVER commit — may contain local paths & env secrets)
+relay.json
+.code-relay/
+RESUME.md
+next_step.md
+
+# local dev harness (not part of the published plugin)
+.opencode/
+.cortexkit/

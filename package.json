@@ -1,0 +1,55 @@
+{
+  "name": "@jimmyyen/opencode-code-relay-plugin",
+  "version": "0.1.0",
+  "description": "OpenCode plugin that automates the Code Relay protocol (concept based on yan5xu/code-relay): cross-session and cross-repo state handoff for AI coding agents.",
+  "license": "MIT",
+  "contributors": [
+    {
+      "name": "yan5xu",
+      "url": "https://github.com/yan5xu"
+    }
+  ],
+  "author": "jimmyyen",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cawa0505/opencode-code-relay-plugin.git"
+  },
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "opencode": {
+    "plugins": [
+      "./dist/index.js"
+    ]
+  },
+  "keywords": [
+    "opencode",
+    "opencode-plugin",
+    "code-relay",
+    "ai-agent",
+    "context",
+    "handoff"
+  ],
+  "files": [
+    "dist",
+    "commands",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc && node -e \"require('fs').cpSync('src/templates','dist/templates',{recursive:true})\"",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run build"
+  },
+  "dependencies": {
+    "@opencode-ai/plugin": "1.17.18"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "typescript": "^5.0.0"
+  },
+  "publishConfig": {
+    "provenance": true,
+    "access": "public"
+  }
+}
