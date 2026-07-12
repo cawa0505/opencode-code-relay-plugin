@@ -122,9 +122,23 @@ export function gitShortStat(root: string): string {
   return stat ? `${stat} (${files} files uncommitted)` : `${files} files uncommitted`
 }
 
-export function gitCommit(root: string, message: string, files: string[]): string {
+function isIgnored(root: string, file: string): boolean {
+  // git check-ignore exits 0 if ignored, 1 if not
   try {
-    execSync(`git add ${files.map((f) => JSON.stringify(f)).join(" ")}`, { cwd: root, stdio: "ignore" })
+    execSync(`git check-ignore -q ${JSON.stringify(file)}`, { cwd: root, stdio: "ignore" })
+    return true
+  } catch {
+    return false
+  }
+}
+
+export function gitCommit(root: string, message: string, files: string[]): string {
+  // ponytail: only add files that exist and aren't gitignored, so a private
+  // relay.json doesn't abort the whole commit (e.g. when specs/ should still land)
+  const addable = files.filter((f) => existsSync(join(root, f)) && !isIgnored(root, f))
+  if (addable.length === 0) return "nothing to commit (files ignored or missing)"
+  try {
+    execSync(`git add ${addable.map((f) => JSON.stringify(f)).join(" ")}`, { cwd: root, stdio: "ignore" })
     execSync(`git commit -m ${JSON.stringify(message)}`, { cwd: root, stdio: "ignore" })
     return gitLastCommit(root)
   } catch (e) {
