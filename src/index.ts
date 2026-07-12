@@ -16,32 +16,32 @@ const plugin: Plugin = async (ctx: PluginInput): Promise<Hooks> => {
   // Register them here by mutating cfg.command (same pattern the plugin
   // ecosystem uses). The .md files in commands/ are kept only as reference.
   const commands: Record<string, { description: string; template: string }> = {
-    relayInit: {
+    "relay-init": {
       description: "Initialize a relay.json to start cross-session state handoff",
       template:
         "Use the `relayInit` tool to create a `relay.json` in the current directory, plus `specs/` and `.code-relay/` folders. If the user described the project, pass it as `project_context`.",
     },
-    relaySave: {
+    "relay-save": {
       description: "Save current repo state into relay.json and render RESUME.md",
       template:
         "Use the `relaySave` tool to capture the current repo's state. Summarize what the user said into `volatile_state`, set `active_phase` if known, and a `confidence` (1-5). If they said what to do next, set `next_session_starter`.",
     },
-    relayClose: {
+    "relay-close": {
       description: "Run the closing ritual (consistency check, spec diff, next_step.md, commit)",
       template:
         "Use the `relayClose` tool to run the closing ritual for the current repo. If the user gave a next-step instruction, pass it as `next_session_starter`.",
     },
-    relaySwitch: {
+    "relay-switch": {
       description: "Pass the baton to another repo and render its handover",
       template:
         "Use the `relaySwitch` tool with the target repo name (from `relayStatus`) as `repo`.",
     },
-    relayResume: {
+    "relay-resume": {
       description: "Render the RESUME handover for the active repo (bootstrap a new session)",
       template:
         "Use the `relayResume` tool to print the RESUME handover for the active repo. If the user named a repo, pass it as `repo`.",
     },
-    relayStatus: {
+    "relay-status": {
       description: "Show relay summary (repos, active baton, spec drift)",
       template: "Use the `relayStatus` tool to print the current relay state.",
     },
