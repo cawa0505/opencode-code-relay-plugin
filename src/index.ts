@@ -7,10 +7,12 @@ import { switchRelay, resumeRelay } from "./commands/switch.js"
 import { statusRelay } from "./commands/status.js"
 import { discoverRoot, readRelay } from "./state.js"
 import { renderResume } from "./render.js"
+import { startAutoUpdate } from "./auto-update.js"
 
 const z = tool.schema
 
 const plugin: Plugin = async (ctx: PluginInput): Promise<Hooks> => {
+  startAutoUpdate(ctx) // best-effort: check npm for a newer version in the background
   const dir = ctx.directory
   // opencode does NOT auto-discover slash commands from npm plugin packages.
   // Register them here by mutating cfg.command (same pattern the plugin

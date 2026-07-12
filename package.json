@@ -1,6 +1,6 @@
 {
   "name": "@jimmyyen/opencode-code-relay-plugin",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "OpenCode plugin that automates the Code Relay protocol (concept based on yan5xu/code-relay): cross-session and cross-repo state handoff for AI coding agents.",
   "license": "MIT",
   "contributors": [
@@ -23,11 +23,6 @@
       "default": "./dist/index.js"
     }
   },
-  "opencode": {
-    "plugins": [
-      "./dist/index.js"
-    ]
-  },
   "keywords": [
     "opencode",
     "opencode-plugin",
@@ -38,7 +33,6 @@
   ],
   "files": [
     "dist",
-    "commands",
     "README.md",
     "LICENSE"
   ],
