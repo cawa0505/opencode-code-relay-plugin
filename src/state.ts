@@ -1,5 +1,6 @@
 import { execSync } from "node:child_process"
-import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, statSync } from "node:fs"
+import { existsSync, readFileSync, writeFileSync, mkdirSync, readdirSync, realpathSync, statSync } from "node:fs"
+import { homedir } from "node:os"
 import { join, resolve, basename, dirname } from "node:path"
 import type { HandoffEntry, RelayState, RepoState } from "./types.js"
 
@@ -10,17 +11,42 @@ export function now(): string {
   return new Date().toISOString()
 }
 
-/** Walk up from `start` to find the directory that contains relay.json. */
+/**
+ * Walk up from `start` to find the directory that contains relay.json, bounded
+ * to the current project.
+ *
+ * Nearest match wins (relay.json is checked before the boundary), then the walk
+ * stops at the first of:
+ *   - a directory containing `.git` (do not cross a git repo boundary),
+ *   - `$HOME` (absolute upper bound),
+ *   - the filesystem root.
+ *
+ * Why the bounds: an unbounded walk lets a stray relay.json above a repo (most
+ * often a leftover in `$HOME`) capture unrelated callers, so many projects end
+ * up sharing one root and overwriting each other's active_baton.
+ */
 export function discoverRoot(start: string): string | null {
-  let dir = resolve(start)
-  // ponytail: bounded walk, stop at fs root
+  const home = homedir()
+  let dir = realpathOr(start)
   for (;;) {
     if (existsSync(join(dir, RELAY_FILE))) return dir
+    if (existsSync(join(dir, ".git"))) return null
+    if (dir === home) return null
     const parent = dirname(dir)
     if (parent === dir) return null
     dir = parent
   }
 }
+
+/** Resolve `p` through symlinks, falling back to the plain resolve on error. */
+function realpathOr(p: string): string {
+  try {
+    return realpathSync(p)
+  } catch {
+    return resolve(p)
+  }
+}
+
 
 export function readRelay(root: string): RelayState {
   const p = join(root, RELAY_FILE)
